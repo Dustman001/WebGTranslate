@@ -1,0 +1,75 @@
+﻿@model WebGoogleTranslate.Models.TranslateModel
+
+@{
+    ViewData["Title"] = "Home Page";
+    var SrcSel = new SelectList(Model.Langs, "Value", "Text", "es");
+    var TrgSel = new SelectList(Model.Langs, "Value", "Text", "en");
+    ViewData["Sources"] = SrcSel;
+    ViewData["Targets"] = TrgSel;
+}
+
+<div class="row">
+    <div class="container">
+        <h2>Translation Test Page</h2>
+        <p id="unmode1">Sample pages using ASP.NET Core MVC to tranlate simple Text</pid="unmode"><br />
+        <p id="unmode2">Sample pages using ASP.NET Core MVC to tranlate simple Text</p><br />
+        <p id="unmode3">Sample pages using ASP.NET Core MVC to tranlate simple Text</p><br />
+        <div class="form-group">
+            @Html.LabelFor(model => model.SelectedSourceLg, "Idioma", htmlAttributes: new { @class = "control-label col-md-2", @id="idm" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(M => M.SelectedSourceLg, new SelectList(Model.Langs, "Value", "Text", Model.SelectedSourceLg), new { @class = "dropdown col-md-4", @id = "PagLang", @onchange = "PageLangs(this.value);" })
+                @Html.Hidden("PagLangSet", "es")
+            </div>
+        </div><br />
+        <div class="form-group">
+            @Html.LabelFor(model => model.SelectedSourceLg, "Origen", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(M => M.SelectedSourceLg, new SelectList(Model.Langs, "Value", "Text", Model.SelectedSourceLg), new { @class = "dropdown col-md-4", @id = "SrcLang" })
+            </div>
+        </div><br />
+        <div class="form-group">
+            @Html.LabelFor(M => M.SelectedTargetLg, "Destino", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(M => M.SelectedTargetLg, new SelectList(Model.Langs, "Value", "Text", Model.SelectedTargetLg), new { @class = "dropdown col-md-4", @id = "TrgLang" });
+            </div>
+        </div><br />
+        <div class="form-group">
+            @Html.LabelFor(M => M.Origin, "Texto Origen", htmlAttributes: new { @class = "control-label col-md-4" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(m => m.Origin, 10, 10, new { @class = "form-control col-md-4" })
+            </div>
+        </div><br />
+        <div class="form-group">
+            @Html.LabelFor(M => M.Result, "Texto Traducido", htmlAttributes: new { @class = "control-label col-md-4" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(m => m.Result, 10, 10, new { @class = "form-control col-md-4" })
+            </div>
+        </div><br />
+    </div>
+</div>
+<script type="text/javascript">
+
+    var pl = document.getElementById("PagLang");
+    var sl = document.getElementById("SrcLang");
+    var tl = document.getElementById("TrgLang");
+    var ps = document.getElementById("PagLangSet");
+    var idm = document.getElementById('idm');
+
+    var url = 'https://translate.google.com/translate_a/single?client=at&dt=t&dt=ld&dt=qca&dt=rm&dt=bd&dj=1&&ie=UTF-8&oe=UTF-8&inputm=2&otf=2&iid=1dd3b944-fa62-4b55-b330-74909a99969e';
+    var urk = 'https://translate.google.com/translate_a/single?client=at&dt=t&dt=ld&dt=qca&dt=rm&dt=bd&dj=1&&ie=UTF-8&oe=UTF-8&inputm=2&otf=2&iid=1dd3b944-fa62-4b55-b330-74909a99969e&sl=es&tl=ps&hl=ps&q="Idioma"';
+
+    function PageLangs(val) {
+        //& sl=es & tl=en & hl=en & q="Quiero un Nuevo trabajo"
+        // + '&sl=' + pls.value + '&tl=' + pl.value + '&hl=' + pl.value + '&q=' + '"' + idm.innerText + '"';
+
+        urlk = url + '&sl=' + ps.value + '&tl=' + pl.value + '&hl=' + pl.value + '&q="' + idm.innerHTML + '"';
+        document.getElementById("unmode1").innerText = urlk;
+
+        document.getElementById("unmode1").innerText = fetch(urk).then(response => response.json())
+            .then(json => console.log(json));
+    }
+
+    window.onload = function () {
+
+    };
+</script>
