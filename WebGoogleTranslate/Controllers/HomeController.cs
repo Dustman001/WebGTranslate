@@ -8,11 +8,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using WebGoogleTranslate.Models;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.IO;
 
 namespace WebGoogleTranslate.Controllers
 {
     public class HomeController : Controller
     {
+        
         public IActionResult Index()
         {
             TranslateModel tmd = new TranslateModel();
@@ -20,18 +25,6 @@ namespace WebGoogleTranslate.Controllers
             tmd.Langs = fillList();
             tmd.SelectedSourceLg = "es";
             tmd.SelectedTargetLg = "en";
-
-            HttpClient hc = new HttpClient();
-            string uri = "https://translate.google.com/translate_a/single?client=at&dt=t&dt=ld&dt=qca&dt=rm&dt=bd&dj=1&&ie=UTF-8&oe=UTF-8&inputm=2&otf=2&iid=1dd3b944-fa62-4b55-b330-74909a99969e&sl=es&tl=ps&hl=ps&q=\"Idioma\"";
-
-            hc.GetAsync(uri).ContinueWith((ds) =>
-            {
-                HttpContent hcc = ds.Result.Content;
-                hcc.ReadAsStringAsync().ContinueWith((result) =>
-                { JsonResult jr = new 
-                    var resu = result.Result.json();
-                }).Wait();
-            }).Wait();
 
             return View(tmd);
         }
@@ -55,10 +48,67 @@ namespace WebGoogleTranslate.Controllers
             return View();
         }
 
-        public IActionResult TranlateApi()
+
+        [HttpGet]
+        public string TranslateApi(string sl = "", string tl = "", string tx = "")
         {
+            HttpClient hc = new HttpClient();
+            JsonSerializer jss = new JsonSerializer();
+            List<string> li = new List<string>();
+            string uri = $"https://translate.google.com/translate_a/single?client=gtx&dt=t&dt=ld&dt=qca&dt=rm&dt=bd&dj=1&&ie=UTF-8&oe=UTF-8&inputm=2&otf=2&iid=1dd3b944-fa62-4b55-b330-74909a99969e";
+
+            if (sl == "")
+            {
+                sl = "es";
+                //&sl=es&tl=ps&hl=ps
+                uri += $"&sl={sl}&tl={tl}&hl={tl}";
+
+                if (tx == "")
+                {
+                    tx = "&q=Lenguaje";
+                    li.Add(get_translation(hc, uri + tx));
+                    tx = "&q=Origen";
+                    li.Add(get_translation(hc, uri + tx));
+                    tx = "&q=Destino";
+                    li.Add(get_translation(hc, uri + tx));
+
+                    tx = JsonConvert.SerializeObject(li);
+                }
+            }
+            else
+            {
+                uri += $"&sl={sl}&tl={tl}&hl={tl}&q={tx}";
+
+                li.Add(get_translation(hc, uri));
+
+                tx = JsonConvert.SerializeObject(li);
+            }
+
+            if(tx == "")
+            {
+                return "401";
+            }
+            else
+            {
+                return tx;
+            }
             
-            return View();
+        }
+
+        private string get_translation(HttpClient hc, string tx)
+        {
+            var hrm = hc.GetStringAsync(tx).Result;
+            var json = JObject.Parse(hrm);
+            var ftok = json.First.First;
+            var stok = ftok.First;
+
+            return stok["trans"].ToString().Replace("\"", "");
+        }
+
+        private string convert()
+        {
+
+            return "";
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
